@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+{% block content %}
+    <div class="col-md-12">
+        <h1 class="text-center">Consultanți</h1>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nume utilizator</th>
+                <th>Dată înregistrare</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in profiles %}
+                <tr>
+                    <td>{{ profile.user.username }}</td>
+                    <td>{{ profile.user.date_joined }}</td>
+                    <td>
+                        <a href="{% url 'calendar' profile.user.username %}">Calendar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}
+{% block javascripts %}
+{% endblock javascripts %}

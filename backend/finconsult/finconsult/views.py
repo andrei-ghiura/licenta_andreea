@@ -7,6 +7,62 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from .models import Profile, Meeting
+
+# add a view for a new meeting that is only available to consultants and return the newmeeting.html page
+
+
+@login_required(login_url="/login/")
+def newmeeting(request):
+    context = {'segment': 'newmeeting'}
+    html_template = loader.get_template('home/newmeeting.html')
+    return HttpResponse(html_template.render(context, request))
+
+
+# add a normal view function that takes in a meeting id as an argument and return the notes of that meeting
+@login_required(login_url="/login/")
+def notes(request, id):
+    context = {'segment': 'notes'}
+    # add the meeting to the context
+    context['meeting'] = Meeting.objects.get(id=id)
+    html_template = loader.get_template('home/notes.html')
+    return HttpResponse(html_template.render(context, request))
+
+
+# add a calendar view function that takes in a username as an argument and return the calendar.html page
+@login_required(login_url="/login/")
+def calendar(request, username):
+    context = {'segment': 'calendar'}
+    # get the user object from the username
+    user = Profile.objects.get(user__username=username)
+    # add all the meetings that the user is assigned as a consultant to the context
+    context['meetings'] = Meeting.objects.filter(
+        consultant__username=username)
+    print(context['meetings'])
+    print(username)
+    # add the user to the context
+    context['user'] = user
+    html_template = loader.get_template('home/calendar.html')
+    return HttpResponse(html_template.render(context, request))
+
+
+# add a profile view that takes the username as an argument and return the profile.html page
+@login_required(login_url="/login/")
+def profile(request, username):
+    context = {'segment': 'profile'}
+    # get the user object from the username
+    user = Profile.objects.get(user__username=username)
+    # add the user to the context
+    context['user'] = user
+    # add to the context the profile for the user
+    context['meetNr'] = len(Meeting.objects.filter(
+        consultant__username=username))
+    context['meetings'] = Meeting.objects.filter(
+        consultant__username=username)
+    context['profile'] = Profile.objects.get(user__username=username)
+
+    html_template = loader.get_template('home/profile.html')
+    return HttpResponse(html_template.render(context, request))
 
 
 @login_required(login_url="/login/")
@@ -15,7 +71,6 @@ def pages(request):
     # All resource paths end in .html.
     # Pick out the html file name from the url. And load that template.
     try:
-
         load_template = request.path.split('/')[-1]
 
         if load_template == 'admin':
@@ -23,6 +78,17 @@ def pages(request):
         context['segment'] = load_template
 
         html_template = loader.get_template('home/' + load_template)
+        print(load_template)
+        # switch case statement for load_template when it is listConsult.html, return null
+        if load_template == 'listConsult.html':
+            # add the users to the context where the position is consultant
+            context['profiles'] = Profile.objects.filter(position='CO')
+            return HttpResponse(html_template.render(context, request))
+        if load_template == 'listClient.html':
+            # add the users to the context where the position is consultant
+            context['profiles'] = Profile.objects.filter(position='CL')
+            return HttpResponse(html_template.render(context, request))
+
         return HttpResponse(html_template.render(context, request))
 
     except template.TemplateDoesNotExist:

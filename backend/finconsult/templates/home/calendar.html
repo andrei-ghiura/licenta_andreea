@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+{% block stylesheets %}
+{% endblock stylesheets %}
+{% block content %}
+    {% comment %} generate a table of meetings from context with the fields from the model meetin  {% endcomment %}
+    <div class="container">
+        <h2 class="text-center">Meetings</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Meeting Date</th>
+                    <th>Meeting Location</th>
+                    <th>Client</th>
+                    <th>Client Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meeting in meetings %}
+                    <tr>
+                        <td>{{ meeting.date }}</td>
+                        <td>{{ meeting.location }}</td>
+                        <td>{{ meeting.client.username }}</td>
+                        <td>{{ meeting.client.phone }}</td>
+                        {% comment %} add a link to the meeting notes {% endcomment %}
+                        <td>
+                            <a href="{% url 'notes' meeting.pk %}">Notes</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+{% block javascripts %}
+{% endblock javascripts %}

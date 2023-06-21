@@ -6,16 +6,21 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Meeting(models.Model):
-    consultant = models.OneToOneField(User, on_delete=models.CASCADE)
+    # add a meeting id field that auto increments
+    id = models.AutoField(primary_key=True)
+    consultant = models.ForeignKey(
+        User, blank=True, on_delete=models.CASCADE, related_name='consultant')
     client = models.OneToOneField(
         User, blank=True, on_delete=models.CASCADE, related_name='client')
-    newcommer = models.BooleanField(default=False)
-    nc_name = models.TextField(max_length=100, blank=True)
-    nc_birth_date = models.DateField(null=True, blank=True)
-    nc_phone = models.TextField(max_length=500, blank=True)
-    bio = models.TextField(max_length=500, blank=True)
-    location = models.CharField(max_length=30, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(max_length=500, blank=True)
+    date = models.DateField(null=True, blank=True)
+    time = models.TimeField(null=True, blank=True)
+    duration = models.IntegerField(null=True, blank=True)
+    location = models.TextField(max_length=500, blank=True)
+    title = models.TextField(max_length=500, blank=True)
+
+    def __str__(self):
+        return str(self.id)
 
 
 class Profile(models.Model):
@@ -29,11 +34,15 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
+    phone = models.TextField(max_length=500, blank=True)
     position = models.CharField(
         max_length=2,
         choices=Roles.choices,
         default=Roles.CONSULTANT,
     )
+
+    def __str__(self):
+        return self.user.username
 
 
 @receiver(post_save, sender=User)
